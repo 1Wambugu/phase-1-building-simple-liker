@@ -1,25 +1,43 @@
-// Defining text characters for the empty and full hearts for you to use later.
-const EMPTY_HEART = '♡'
-const FULL_HEART = '♥'
+function handleUserAction() {
+  const heartButton = document.getElementById("heart-button");
+  const errorModal = document.getElementById("modal");
+  const errorMessage = document.getElementById("modal-message");
 
-// Your JavaScript code goes here!
+  // Disable the heart button during the server call
+  heartButton.disabled = true;
 
-
-
-
-//------------------------------------------------------------------------------
-// Don't change the code below: this function mocks the server response
-//------------------------------------------------------------------------------
-
-function mimicServerCall(url="http://mimicServer.example.com", config={}) {
-  return new Promise(function(resolve, reject) {
-    setTimeout(function() {
-      let isRandomFailure = Math.random() < .2
-      if (isRandomFailure) {
-        reject("Random server error. Try again.");
+  // Simulate server call
+  mimicServerCall()
+    .then(() => {
+      // Inside a successful response from the server
+      if (!heartButton.classList.contains("activated-heart")) {
+        // If heart is empty, change it to full and add the activated class
+        heartButton.classList.add("activated-heart");
       } else {
-        resolve("Pretend remote server notified of action!");
+        // If heart is full, change it back to empty and remove the activated class
+        heartButton.classList.remove("activated-heart");
       }
-    }, 300);
-  });
+    })
+    .catch(() => {
+      // Display error message in the error modal
+      errorMessage.textContent = "Error: Could not update heart. Please try again.";
+      errorModal.classList.remove("hidden");
+
+      // Hide the error modal after 3 seconds
+      setTimeout(() => {
+        errorModal.classList.add("hidden");
+      }, 3000);
+    })
+    .finally(() => {
+      // Enable the heart button again after the server call is completed
+      heartButton.disabled = false;
+    });
 }
+
+const hearts = document.querySelectorAll(".heart");
+hearts.forEach((heart) => {
+  heart.addEventListener("click", () => {
+    handleHeartClick(heart);
+  });
+});
+
